@@ -1,0 +1,49 @@
+# ---------------------------------------------------------------
+# 1️⃣  ServiceAccount — this creates an "identity" for your app or CI/CD
+# ---------------------------------------------------------------
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: reflys-deployer        # name of the service account
+  namespace: reflys            # the namespace it belongs to (like its department)
+# Pods or pipelines will use this account to interact with the cluster
+
+---
+
+# ---------------------------------------------------------------
+# 2️⃣  Role — this defines *what actions* the account is allowed to do
+# ---------------------------------------------------------------
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: reflys-deployer-role   # name of this role
+  namespace: reflys            # the same namespace (Roles are namespace-scoped)
+rules:
+  # Each "rule" is a list of permissions
+  - apiGroups: ["", "apps", "extensions"]
+    # "" = core resources (pods, services, configmaps, etc.)
+    # "apps" and "extensions" are for deployments, replicasets, etc.
+    resources: ["pods", "deployments", "services", "configmaps", "secrets"]
+    # These are the resources we allow this Role to manage
+    verbs: ["get", "list", "watch", "create", "update", "delete"]
+    # These are the actions this Role can perform on those resources
+    # (so this account can fully manage pods, deployments, services, etc.)
+
+---
+
+# ---------------------------------------------------------------
+# 3️⃣  RoleBinding — this connects the ServiceAccount to the Role
+# ---------------------------------------------------------------
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: reflys-deployer-binding
+  namespace: reflys
+subjects:
+  - kind: ServiceAccount          # we are giving permissions to a ServiceAccount
+    name: reflys-deployer         # name of the ServiceAccount we created above
+    namespace: reflys
+roleRef:
+  kind: Role                      # linking to the Role defined above
+  name: reflys-deployer-role
+  apiGroup: rbac.authorization.k8s.io
