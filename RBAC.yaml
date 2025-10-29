@@ -9,7 +9,6 @@ metadata:
 # Pods or pipelines will use this account to interact with the cluster
 
 ---
-
 # ---------------------------------------------------------------
 # 2️⃣  Role — this defines *what actions* the account is allowed to do
 # ---------------------------------------------------------------
